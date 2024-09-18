@@ -31,17 +31,21 @@ def aroundLivingCount(matrix: Matrix, x: Int, y: Int): Int = {
     ).map(_.toList).flatten.filter(_ == true).length
 }
 
+def nextValue(current: Option[Boolean], aroundLivings: Int): Boolean = {
+    current match {
+        case Some(false) => if (aroundLivings == 3) true else false
+        case Some(true) => if (aroundLivings <= 1) false
+            else if (aroundLivings <= 3) true
+            else false
+        case None => throw new Exception("bug")
+    }
+}
+
 def nextGeneration(matrix: Matrix): Matrix = {
     val newMatrix = Range(0, matrix.matrix.length).toList.map(x => 
         Range(0, matrix.matrix.head.length).toList.map(y => {
             val aroundLivings = aroundLivingCount(matrix, x, y)
-            getPoint(matrix, x, y) match {
-                case Some(false) => if (aroundLivings == 3) true else false
-                case Some(true) => if (aroundLivings <= 1) false
-                    else if (aroundLivings <= 3) true
-                    else false
-                case None => throw new Exception("bug")
-            }
+            nextValue(getPoint(matrix, x, y), aroundLivings)
         }).toList
     )
     Matrix(newMatrix)    
