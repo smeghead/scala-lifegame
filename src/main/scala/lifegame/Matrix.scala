@@ -1,12 +1,10 @@
 package lifegame
-import cats.effect.IO
-import cats.implicits._
 
-case class Matrix(matrix: List[List[Boolean]])
+case class Matrix(matrix: IArray[IArray[Boolean]])
 
 def createMatrix(x: Int, y: Int, gen: () => Boolean): Matrix = {
-    val matrix = Range(0, x).toList.map(_ => 
-        Range(0, y).toList.map(_ => gen()).toList
+    val matrix = IArray.fill(x)(
+        IArray.fill(y)(gen())
     )
     Matrix(matrix)
 }
@@ -28,12 +26,12 @@ def aroundLivingCount(matrix: Matrix, x: Int, y: Int): Int = {
         getPoint(matrix, x + 1, y - 1),
         getPoint(matrix, x + 1, y),
         getPoint(matrix, x + 1, y + 1),
-    ).map(_.toList).flatten.filter(_ == true).length
+    ).flatten.count(_ == true)
 }
 
 def nextValue(current: Option[Boolean], aroundLivings: Int): Boolean = {
     current match {
-        case Some(false) => if (aroundLivings == 3) true else false
+        case Some(false) => aroundLivings == 3
         case Some(true) => if (aroundLivings <= 1) false
             else if (aroundLivings <= 3) true
             else false
@@ -42,11 +40,11 @@ def nextValue(current: Option[Boolean], aroundLivings: Int): Boolean = {
 }
 
 def nextGeneration(matrix: Matrix): Matrix = {
-    val newMatrix = Range(0, matrix.matrix.length).toList.map(x => 
-        Range(0, matrix.matrix.head.length).toList.map(y => {
+    val newMatrix = IArray.from(matrix.matrix.indices.map(x => 
+        IArray.from(matrix.matrix.head.indices.map(y => {
             val aroundLivings = aroundLivingCount(matrix, x, y)
             nextValue(getPoint(matrix, x, y), aroundLivings)
-        }).toList
-    )
+        }))
+    ))
     Matrix(newMatrix)    
 }

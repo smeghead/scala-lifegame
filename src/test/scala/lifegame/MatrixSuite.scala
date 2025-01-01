@@ -1,5 +1,5 @@
 import lifegame._
-import cats.effect.IO
+import munit.Clue.generate
 
 class MatrixSuite extends munit.FunSuite {
   test("initial matrix state") {
@@ -24,16 +24,16 @@ class MatrixSuite extends munit.FunSuite {
     assertEquals(sut.matrix.length, 40)
     assertEquals(sut.matrix.head.length, 80)
 
-    val trueCount = sut.matrix.head.filter(n => n == true).length
+    val trueCount = sut.matrix.head.count(n => n == true)
     assertEquals(trueCount > 20, true)
     assertEquals(trueCount < 60, true)
   }
 
   test("small matrix. aroundLivingCount") {
-    val matrix = Matrix(List(
-      List(true, true, true, true),
-      List(true, true, false, false),
-      List(true, false, false, false),
+    val matrix = Matrix(IArray(
+      IArray(true, true, true, true),
+      IArray(true, true, false, false),
+      IArray(true, false, false, false),
     ))
 
     assertEquals(aroundLivingCount(matrix, 0, 0), 3)
@@ -42,10 +42,10 @@ class MatrixSuite extends munit.FunSuite {
   }
 
   test("small matrix. nextGeneration") {
-    val matrix = Matrix(List(
-      List(true, true, true, true),
-      List(true, true, false, false),
-      List(true, false, false, true),
+    val matrix = Matrix(IArray(
+      IArray(true, true, true, true),
+      IArray(true, true, false, false),
+      IArray(true, false, false, true),
     ))
     val next = nextGeneration(matrix)
 
@@ -55,4 +55,13 @@ class MatrixSuite extends munit.FunSuite {
     assertEquals(next.matrix.apply(2).apply(3), false, "Depopulation")
   }
 
+  test("indeces") {
+    val matrix = Matrix(IArray(
+      IArray(true, true, true, true),
+      IArray(true, true, false, false),
+      IArray(true, false, false, true),
+    ))
+
+    assertEquals(matrix.matrix.indices.toList, List(0, 1, 2))
+  }
 }
